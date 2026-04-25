@@ -1,0 +1,36 @@
+# ── 4a. Volume by source ─────────────────────────────────
+source_counts = df['traffic_source'].value_counts().reset_index()
+source_counts.columns = ['Source', 'Sessions']
+
+fig = px.pie(source_counts, values='Sessions', names='Source',
+             title='Traffic Source Distribution',
+             hole=0.4,
+             color_discrete_sequence=px.colors.qualitative.Pastel)
+fig.show()
+
+# ── 4b. Conversion rate by source ────────────────────────
+conv_by_source = (df.groupby('traffic_source')
+                    .agg(sessions=('visit_id','count'),
+                         conversions=('conversion','sum'),
+                         bounce_rate=('bounce','mean'),
+                         avg_session_min=('session_min','mean'))
+                    .assign(conversion_rate=lambda x: (x['conversions']/x['sessions']*100).round(2),
+                            bounce_rate=lambda x: (x['bounce_rate']*100).round(2),
+                            avg_session_min=lambda x: x['avg_session_min'].round(2))
+                    .sort_values('conversion_rate', ascending=False)
+                    .reset_index())
+
+print("=== Source Quality Report ===")
+print(conv_by_source[['traffic_source','sessions','conversion_rate','bounce_rate','avg_session_min']].to_string(index=False))
+
+# ── 4c. Sessions over time by source ─────────────────────
+monthly_source = (df.groupby(['month_name','month','traffic_source'])
+                    .size()
+                    .reset_index(name='sessions'))
+monthly_source = monthly_source.sort_values('month')
+
+fig = px.line(monthly_source, x='month_name', y='sessions',
+              color='traffic_source',
+              title='Monthly Sessions by Traffic Source',
+              markers=True)
+fig.show()
