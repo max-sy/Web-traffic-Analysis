@@ -1,0 +1,17 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
+import seaborn as sns
+import plotly.express as px
+import plotly.graph_objects as go
+import warnings
+warnings.filterwarnings('ignore')  
+
+# Style
+sns.set_theme(style="whitegrid", palette="muted")
+plt.rcParams['figure.figsize'] = (10, 5)
+# Load
+df = pd.read_csv('global_web_traffic_dataset.csv')
+print(f"Shape: {df.shape}")
+print(f"\nColumns: {list(df.columns)}")
+df.head()
