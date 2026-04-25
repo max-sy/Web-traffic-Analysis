@@ -1,0 +1,22 @@
+# Fix date type
+df['date'] = pd.to_datetime(df['date'])
+
+# Extract useful time features
+df['month']   = df['date'].dt.month
+df['month_name'] = df['date'].dt.strftime('%b')
+df['weekday'] = df['date'].dt.day_name()
+
+# Session duration in minutes (easier to read)
+df['session_min'] = (df['session_duration_sec'] / 60).round(2)
+
+# Check data quality
+print("=== Null Values ===")
+print(df.isnull().sum())
+
+print(f"\n=== Duplicate Rows: {df.duplicated().sum()} ===")
+
+print(f"\n=== Date Range: {df['date'].min().date()} to {df['date'].max().date()} ===")
+
+print(f"\n=== Traffic Sources: {df['traffic_source'].unique()} ===")
+print(f"=== Pages: {df['page'].unique()} ===")
+print(f"=== Devices: {df['device_type'].unique()} ===")
