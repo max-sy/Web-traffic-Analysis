@@ -1,0 +1,44 @@
+print("   WEB TRAFFIC ANALYTICS — FINAL SUMMARY REPORT")
+print(f"\n Dataset: {len(df):,} sessions | Jan–Dec 2025")
+print(f"\n OVERALL KPIs")
+print(f"   Bounce Rate       : {df['bounce'].mean()*100:.2f}%")
+print(f"   Conversion Rate   : {df['conversion'].mean()*100:.2f}%")
+print(f"   Avg Session (min) : {df['session_min'].mean():.2f}")
+print(f"   Avg Pages/Session : {df['pages_viewed'].mean():.2f}")
+
+print(f"\n TOP TRAFFIC SOURCE (by volume)")
+top_src = df['traffic_source'].value_counts().idxmax()
+print(f"   {top_src} — {df['traffic_source'].value_counts()[top_src]} sessions")
+
+print(f"\n BEST CONVERTING SOURCE")
+best_conv = conv_by_source.iloc[0]
+print(f"   {best_conv['traffic_source']} — {best_conv['conversion_rate']}% conversion")
+
+print(f"\n  HIGHEST BOUNCE SOURCE")
+worst = bounce_by_source.iloc[0]
+print(f"   {worst['Traffic Source']} — {worst['Bounce Rate (%)']:.1f}% bounce rate")
+
+print(f"\n HIGHEST BOUNCE PAGE")
+worst_page = page_stats.iloc[0]
+print(f"   {worst_page['page']} — {worst_page['bounce_rate']}% bounce rate")
+
+print(f"\n RECOMMENDATIONS")
+print("""
+   1. Improve landing page UX for high-bounce sources
+   2. Optimize /contact and /about pages — low engagement
+   3. Focus paid budget on highest-converting source
+   4. Run A/B tests on pages with >40% bounce rate
+   5. Improve mobile experience if mobile bounce > desktop
+   6. Add CTAs on high-traffic, low-conversion pages
+""")
+
+# ── 8b. Export all key tables to CSV ─────────────────────
+bounce_by_source.to_csv('bounce_by_source.csv', index=False)
+conv_by_source.to_csv('source_quality.csv', index=False)
+page_stats.to_csv('page_performance.csv', index=False)
+funnel_df.to_csv('funnel_analysis.csv', index=False)
+
+print(" Files exported: bounce_by_source.csv, source_quality.csv,")
+print("   page_performance.csv, funnel_analysis.csv")
+print(" Charts saved: bounce_by_source.png, session_duration.png,")
+print("   top_pages.png, bounce_vs_conversion.png, heatmap_bounce.png")
