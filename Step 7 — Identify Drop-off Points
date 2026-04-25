@@ -1,0 +1,48 @@
+# ── 7a. Exit / bounce rate per page ─────────────────────
+page_stats = (df.groupby('page')
+                .agg(total_visits=('visit_id','count'),
+                     bounced=('bounce','sum'),
+                     converted=('conversion','sum'),
+                     avg_session_min=('session_min','mean'),
+                     avg_pages_viewed=('pages_viewed','mean'))
+                .assign(bounce_rate=lambda x: (x['bounced']/x['total_visits']*100).round(2),
+                        conversion_rate=lambda x: (x['converted']/x['total_visits']*100).round(2),
+                        avg_session_min=lambda x: x['avg_session_min'].round(2),
+                        avg_pages_viewed=lambda x: x['avg_pages_viewed'].round(2))
+                .sort_values('bounce_rate', ascending=False)
+                .reset_index())
+
+print("=== Per-Page Performance ===")
+print(page_stats[['page','total_visits','bounce_rate','conversion_rate',
+                   'avg_session_min','avg_pages_viewed']].to_string(index=False))
+
+# ── 7b. Visualize bounce vs conversion per page ──────────
+fig, ax = plt.subplots(figsize=(10, 6))
+x = range(len(page_stats))
+width = 0.35
+ax.bar([i - width/2 for i in x], page_stats['bounce_rate'],
+       width, label='Bounce Rate %', color='#E24B4A', alpha=0.8)
+ax.bar([i + width/2 for i in x], page_stats['conversion_rate'],
+       width, label='Conversion Rate %', color='#1D9E75', alpha=0.8)
+ax.set_xticks(list(x))
+ax.set_xticklabels(page_stats['page'], rotation=30)
+ax.set_ylabel('Rate (%)')
+ax.set_title('Bounce vs Conversion Rate by Page')
+ax.legend()
+plt.tight_layout()
+plt.savefig('bounce_vs_conversion.png', dpi=150)
+plt.show()
+
+# ── 7c. Heatmap — bounce rate by page × device ───────────
+heatmap_data = (df.groupby(['page','device_type'])['bounce']
+                  .mean()
+                  .mul(100)
+                  .unstack())
+
+plt.figure(figsize=(9, 5))
+sns.heatmap(heatmap_data, annot=True, fmt='.1f', cmap='RdYlGn_r',
+            linewidths=0.5, cbar_kws={'label':'Bounce Rate %'})
+plt.title('Bounce Rate (%) — Page × Device Type')
+plt.tight_layout()
+plt.savefig('heatmap_bounce.png', dpi=150)
+plt.show()
