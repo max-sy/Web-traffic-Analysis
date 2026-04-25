@@ -1,0 +1,30 @@
+# Define your funnel stages in order
+funnel_stages = ['/', '/home', '/products', '/pricing', '/login', '/about', '/blog', '/contact']
+
+# Count visits at each stage
+funnel_counts = []
+for stage in funnel_stages:
+    count = df[df['page'] == stage].shape[0]
+    funnel_counts.append({'Stage': stage, 'Visits': count})
+
+funnel_df = pd.DataFrame(funnel_counts)
+funnel_df['Drop-off %'] = (
+    (1 - funnel_df['Visits'] / funnel_df['Visits'].shift(1)) * 100
+).round(2)
+funnel_df['Conversion %'] = (
+    funnel_df['Visits'] / funnel_df['Visits'].iloc[0] * 100
+).round(2)
+
+print("=== Funnel Analysis ===")
+print(funnel_df.to_string(index=False))
+
+# Plotly funnel chart
+fig = go.Figure(go.Funnel(
+    y = funnel_df['Stage'],
+    x = funnel_df['Visits'],
+    textinfo = "value+percent initial",
+    marker = dict(color=['#185FA5','#378ADD','#85B7EB','#B5D4F4',
+                         '#1D9E75','#5DCAA5','#9FE1CB','#E1F5EE'])
+))
+fig.update_layout(title_text="User Journey Funnel")
+fig.show()
