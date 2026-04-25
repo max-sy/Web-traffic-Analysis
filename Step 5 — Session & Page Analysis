@@ -1,0 +1,44 @@
+# ── 5a. Session duration distribution ────────────────────
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+axes[0].hist(df['session_min'], bins=40, color='steelblue', edgecolor='white')
+axes[0].set_xlabel('Session Duration (minutes)')
+axes[0].set_ylabel('Number of Sessions')
+axes[0].set_title('Session Duration Distribution')
+
+# By device type
+for device in df['device_type'].unique():
+    subset = df[df['device_type'] == device]['session_min']
+    axes[1].hist(subset, bins=30, alpha=0.6, label=device)
+axes[1].set_xlabel('Session Duration (minutes)')
+axes[1].set_title('Session Duration by Device Type')
+axes[1].legend()
+
+plt.tight_layout()
+plt.savefig('session_duration.png', dpi=150)
+plt.show()
+
+avg_session = df['session_min'].mean()
+print(f"Average Session Duration: {avg_session:.2f} minutes")
+print(f"Median Session Duration : {df['session_min'].median():.2f} minutes")
+
+# ── 5b. Top pages by visits ──────────────────────────────
+top_pages = df['page'].value_counts().reset_index()
+top_pages.columns = ['Page', 'Visits']
+
+fig, ax = plt.subplots()
+bars = ax.bar(top_pages['Page'], top_pages['Visits'],
+              color=sns.color_palette("viridis", len(top_pages)))
+ax.set_xlabel('Page')
+ax.set_ylabel('Number of Visits')
+ax.set_title('Top Pages by Visit Count')
+for bar, val in zip(bars, top_pages['Visits']):
+    ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 5,
+            str(val), ha='center', fontsize=9)
+plt.tight_layout()
+plt.savefig('top_pages.png', dpi=150)
+plt.show()
+
+# ── 5c. Pages viewed per session ─────────────────────────
+print(f"\nAvg Pages Viewed Per Session: {df['pages_viewed'].mean():.2f}")
+print(df['pages_viewed'].describe())
