@@ -1,0 +1,41 @@
+# ── 3a. Overall bounce rate ──────────────────────────────
+overall_bounce = df['bounce'].mean() * 100
+print(f"Overall Bounce Rate: {overall_bounce:.2f}%")
+
+# ── 3b. By traffic source ────────────────────────────────
+bounce_by_source = (df.groupby('traffic_source')['bounce']
+                      .mean()
+                      .mul(100)
+                      .sort_values(ascending=False)
+                      .reset_index())
+bounce_by_source.columns = ['Traffic Source', 'Bounce Rate (%)']
+
+fig, ax = plt.subplots()
+bars = ax.barh(bounce_by_source['Traffic Source'],
+               bounce_by_source['Bounce Rate (%)'],
+               color=sns.color_palette("Blues_r", len(bounce_by_source)))
+ax.axvline(overall_bounce, color='red', linestyle='--', label=f'Avg {overall_bounce:.1f}%')
+ax.set_xlabel('Bounce Rate (%)')
+ax.set_title('Bounce Rate by Traffic Source')
+ax.legend()
+for bar, val in zip(bars, bounce_by_source['Bounce Rate (%)']):
+    ax.text(val + 0.3, bar.get_y() + bar.get_height()/2,
+            f'{val:.1f}%', va='center', fontsize=10)
+plt.tight_layout()
+plt.savefig('bounce_by_source.png', dpi=150)
+plt.show()
+
+# ── 3c. By page ──────────────────────────────────────────
+bounce_by_page = (df.groupby('page')['bounce']
+                    .mean()
+                    .mul(100)
+                    .sort_values(ascending=False)
+                    .reset_index())
+bounce_by_page.columns = ['Page', 'Bounce Rate (%)']
+print("\nBounce Rate by Page:")
+print(bounce_by_page.to_string(index=False))
+
+# ── 3d. By device ────────────────────────────────────────
+bounce_by_device = df.groupby('device_type')['bounce'].mean().mul(100).round(2)
+print("\nBounce Rate by Device:")
+print(bounce_by_device)
